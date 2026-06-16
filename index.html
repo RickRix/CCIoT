@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Waste Management Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #status {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #alert {
+            color: red;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Smart Waste Bin Monitoring</h1>
+    <p>Bin Level: <span id="binLevel">Loading...</span>%</p>
+    <p id="status">Status: Loading...</p>
+    <p id="alert">🚨 ALERT: The bin is full! Please empty it. 🚨</p>
+
+    <p>📍 Bin Location: <a id="locationLink" href="#" target="_blank">Fetching location...</a></p>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "***************************************",
+            authDomain: "test-96269.firebaseapp.com",
+            databaseURL: "https://test-96269-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "test-96269",
+            storageBucket: "test-96269.firebasestorage.app",
+            messagingSenderId: "672592921107",
+            appId: "1:672592921107:web:adad1a6f3c108e8fb275e6"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const binRef = database.ref("bin_status");
+
+        binRef.on("value", (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById("binLevel").innerText = data.Bin_Level;
+                document.getElementById("status").innerText = "Status: " + data.Status;
+                document.getElementById("alert").style.display = data.Bin_Level > 75 ? "block" : "none";
+            }
+            if (data.Latitude && data.Longitude) {
+                const mapLink = `https://www.google.com/maps?q=${data.Latitude},${data.Longitude}`;
+                document.getElementById("locationLink").href = mapLink;
+                document.getElementById("locationLink").innerText = `${data.Latitude}, ${data.Longitude}`;
+            } else {
+                document.getElementById("locationLink").innerText = "Location not available";
+            }
+        });
+
+    </script>
+
+</body>
+</html>
